@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+This software is in the public domain under CC0 1.0 Universal plus a 
+Grant of Patent License.
+
+To the extent possible under law, the author(s) have dedicated all
+copyright and related and neighboring rights to this software to the
+public domain worldwide. This software is distributed without any
+warranty.
+
+You should have received a copy of the CC0 Public Domain Dedication
+along with this software (see the LICENSE.md file). If not, see
+<http://creativecommons.org/publicdomain/zero/1.0/>.
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://moqui.org/xsd/xml-screen-2.1.xsd"
+        require-authentication="false" screen-theme-type-enum-id="STT_INTERNAL_QUASAR" default-menu-title="Custom Apps" allow-extra-path="true">
+    <!-- NOTE: require-authentication=false so no permission required but in pre-actions if no user logged in goes to login screen -->
+
+    <pre-actions><script><![CDATA[
+        // if user not logged in save current path and params then redirect to Login
+        if (!ec.user.userId) { ec.web.saveScreenLastInfo(null, null); sri.sendRedirectAndStopRender('/Login') }
+
+        String quasarVersion = "1.12.11"
+
+        // TODO move stylesheets to the STT_INTERNAL_QUASAR theme (QuasarThemeData.xml), once stabilized
+
+        // TODO consider using material icons instead of font-awesome - ISSUE: there are many XML Screen files with 'fa-' references
+        //  AND material icons requires very different syntax with <i class="material-icons-outlined">invert_colors</i> (2 parts) unlike fa with <i class="fa fa-shopping-cart"></i> (1 part)
+        html_stylesheets.add('https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons')
+        // NOTE: using FA 4.7.0 with 'fa' class, for FA 5+ must change all to 'fas' class
+        html_stylesheets.add('/libs/font-awesome/css/font-awesome.min.css')
+        // from Quasar docs, not valid? html_stylesheets.add('https://use.fontawesome.com/releases/v5.0.13/css/all.cs')
+        html_stylesheets.add("https://cdn.jsdelivr.net/npm/quasar@${quasarVersion}/dist/quasar.min.css")
+        // load last to override
+        html_stylesheets.add('/qstatic/WebrootVue.qvt.css')
+
+        html_scripts.add('/libs/moment.js/moment-with-locales.min.js')
+        // TODO: can we get away with not using jQuery?
+        html_scripts.add('/libs/jquery/jquery.min.js')
+        html_scripts.add('/js/MoquiLib.min.js')
+
+        // TODO: use jQuery + jquery-validate (not a good option) or alternative to this in q-form validation?
+        // jquery-validate locale specific scripts
+        // Map validateScriptsOut = ec.service.sync().name("webroot.LocaleServices.get#ValidateLocaleScripts").call()
+        // if (validateScriptsOut.messagesLocation) html_scripts.add(validateScriptsOut.messagesLocation)
+        // if (validateScriptsOut.methodsLocation) html_scripts.add(validateScriptsOut.methodsLocation)
+
+        String instancePurpose = System.getProperty("instance_purpose")
+        if (!instancePurpose || instancePurpose == 'production') {
+            /* ========== Production Mode ========== */
+            // Vue JS
+            footer_scripts.add('/libs/vue/vue.js') // TODO change to vue.min.js
+            // Quasar
+            footer_scripts.add("https://cdn.jsdelivr.net/npm/quasar@${quasarVersion}/dist/quasar.umd.min.js")
+            // Webroot Quasar-Vue instance, in footer so runs after page loaded
+            footer_scripts.add('/qstatic/WebrootVue.qvt.js')
+        } else {
+            /* ========== Dev Mode ========== */
+            // Vue JS
+            footer_scripts.add('/libs/vue/vue.js')
+            // Quasar
+            footer_scripts.add("https://cdn.jsdelivr.net/npm/quasar@${quasarVersion}/dist/quasar.umd.min.js")
+            // Webroot Quasar-Vue instance, in footer so runs after page loaded
+            footer_scripts.add('/qstatic/WebrootVue.qvt.js')
+        }
+
+        // conditional QZ Tray scripts, only include if enabled
+        if (ec.user.getPreference("qz.print.enabled") == "true") {
+            footer_scripts.add('/js/qz-tray/sha-256.min.js')
+            footer_scripts.add('/js/qz-tray/qz-tray.min.js')
+            footer_scripts.add('/js/qz-tray/MoquiQzComponent.js')
+        }
+    ]]></script></pre-actions>
+
+    <widgets>
+        <render-mode>
+            <!-- for html just render the navbar (Vue page wrapper and nav component) -->
+            <!-- ===== NOTE CHANGED: versus qapps.xml in moqui-quasar only the following line and the default-menu-title attribute changed ===== -->
+            <text type="html" location="component://moqui-quasar-custom/screen/includes/WebrootVue.qvt.ftl"/>
+            <!-- not meant to be used for anything else, for all other render modes go directly through /apps -->
+        </render-mode>
+    </widgets>
+</screen>
