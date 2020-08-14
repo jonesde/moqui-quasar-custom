@@ -28,7 +28,6 @@ along with this software (see the LICENSE.md file). If not, see
     <#-- for layout options see: https://quasar.dev/layout/layout -->
     <#-- to build a layout use the handy Quasar tool: https://quasar.dev/layout-builder -->
     <q-layout view="hHh LpR fFf">
-
         <q-header reveal bordered class="bg-black text-white" id="top"><q-toolbar style="font-size:15px;">
             <q-btn dense flat icon="menu" @click="toggleLeftOpen()"></q-btn>
 
@@ -69,6 +68,10 @@ along with this software (see the LICENSE.md file). If not, see
 
             <q-space></q-space>
 
+            <#-- NOTE: not relevant for custom app
+            <a :href="currentLinkUrl.replace('/qapps','/vapps')" target="_blank" class="text-warning on-left">BETA PREVIEW<q-tooltip>Click for current production-ready UI (/vapps)</q-tooltip></a>
+            -->
+
             <#-- spinner, usually hidden -->
             <q-circular-progress indeterminate size="20px" color="light-blue" class="q-ma-xs" :class="{ hidden: loading < 1 }"></q-circular-progress>
 
@@ -86,9 +89,11 @@ along with this software (see the LICENSE.md file). If not, see
             </q-btn>
 
             <#-- nav plugins -->
+            <#-- NOTE: not relevant for custom app unless different theme used to avoid OOTB header plugins
             <template v-for="navPlugin in navPlugins"><component :is="navPlugin"></component></template>
+            -->
 
-            <#-- notify history -->
+                <#-- notify history -->
             <q-btn dense flat icon="notifications">
                 <q-tooltip>${ec.l10n.localize("Notify History")}</q-tooltip>
                 <q-menu><q-list dense style="min-width: 300px">
